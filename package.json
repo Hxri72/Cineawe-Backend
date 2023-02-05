@@ -1,0 +1,30 @@
+{
+  "name": "cineawe",
+  "version": "1.0.0",
+  "description": "The Movie Booking App",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hxri72/Cineawe.git"
+  },
+  "author": "Hariprasad K h",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Hxri72/Cineawe/issues"
+  },
+  "homepage": "https://github.com/Hxri72/Cineawe#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "mongoose": "^6.9.0",
+    "nodemon": "^2.0.20",
+    "react-toastify": "^9.1.1"
+  }
+}
