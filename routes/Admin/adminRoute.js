@@ -4,6 +4,7 @@ const user = require('../../models/userModel')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { response } = require('express')
+const ownerModel = require('../../models/ownerModel')
 
 //create a user
 router.post('/admincreate',async(req,res)=>{
@@ -79,11 +80,19 @@ router.post('/adminlogin',async(req,res)=>{
 router.get('/adminuser',async(req,res)=> {
 
     const users = await user.find({})
-
     return res.send({
         success:true,
         message:'Userlist getted',
         data:users
+    })
+})
+
+router.get('/adminowner',async(req,res)=>{
+    const owners = await ownerModel.find({})
+    return res.send({
+        success:true,
+        message:'Ownerlist fetched successfully',
+        data:owners
     })
 })
 

@@ -7,7 +7,6 @@ module.exports = function(req,res,next){
         req.body.userId = decoded._id
         next();
     } catch (error) {
-        console.log(error.message)
         res.send({
             message: 'Invalid Token'
         })
