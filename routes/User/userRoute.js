@@ -1,145 +1,17 @@
 const router = require("express").Router();
-const user = require("../../models/userModel");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const otpGenerator = require("otp-generator");
-const nodeMailer = require("nodemailer");
 const authMiddleware = require("../../authMiddleware/authMiddleware");
-
-//verify signup with OTP
-router.post("/otp", async (req, res) => {
-  try {
-    const otp = otpGenerator.generate(4, {
-      lowerCaseAlphabets: false,
-      upperCaseAlphabets: false,
-      specialChars: false,
-    });
-    console.log(otp);
-
-    const sender = nodeMailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: "hariprasad727272@gmail.com",
-        pass: process.env.APP_PASSWORD,
-      },
-      tls: {
-        rejectUnauthorized: false,
-      },
-    });
-
-    const mailOptions = {
-      from: "Cineawe",
-      to: "hariprasad72172@gmail.com",
-      subject: "Cineawe:- Verify with OTP",
-      text: `OTP to verify : ${otp}`,
-    };
-
-    sender.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        console.log(error);
-      } else {
-        res.send({
-          success: true,
-          message: "Email send successfully",
-          data: otp,
-        });
-      }
-    });
-  } catch (error) {
-    res.send({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+const userControllers = require('../../controllers/userControllers')
 
 //signup a new user
-router.post("/signup", async (req, res) => {
-  try {
-    const userExist = await user.findOne({ email: req.body.email });
-    if (userExist) {
-      return res.send({
-        success: false,
-        message: "User already Exist",
-      });
-    }
+router.post("/signup",userControllers.postUserSignup);
 
-    //hashing the password
-    const salt = await bcrypt.genSalt(10);
-    const hashPassword = await bcrypt.hash(req.body.password, salt);
-    req.body.password = hashPassword;
+//verify signup with OTP
+router.post("/otp",userControllers.postUserOtp);
 
-    const newUser = new user(req.body);
-    await newUser.save(); 
+//login user
+router.post("/login",userControllers.postUserLogin);
 
-    res.send({
-      success: true,
-      message: "User created successfully",
-    });
-  } catch (error) {
-    res.send({
-      success: false,
-      message: error.message,
-    });
-  }
-});
-
-router.post("/login", async (req, res) => {
-  try {
-    //check if user exist
-    const userExist = await user.findOne({ email: req.body.email });
-
-    if (!userExist) {
-      return res.send({
-        success: false,
-        message: "User does not exist",
-      });
-    }
-
-    //checking password
-    const validPassword = await bcrypt.compare(
-      req.body.password,
-      userExist.password
-    );
-
-    if (!validPassword) {
-      return res.send({
-        success: false,
-        message: "Password is incorrect",
-      });
-    }
-
-    //create and assign to token
-    const token = jwt.sign({ _id: userExist._id }, process.env.jwt_secret, {
-      expiresIn: "1d",
-    });
-    const {password,...others}=userExist._doc
-
-    res.send({
-      success: true,
-      message: " User logged in Successfully",
-      data: token,
-      userData:others
-    });
-  } catch (error) {
-    res.send({
-      success: false,
-      message: error.message,
-    });
-  }
-});
-
-router.post("/getcurrentuser",authMiddleware, async (req, res) => {
-  try {
-    const User = await user.findById(req.body.userId).select("-password");
-    res.send({
-      success: true,
-      message: "User Details fetched successfully",
-      data: User,
-    });
-  } catch (error) {
-    console.log(error.message);
-  }
-});
+//checking the authorization of user
+router.post("/getcurrentuser",authMiddleware,userControllers.getCurrentUser);
 
 module.exports = router;
