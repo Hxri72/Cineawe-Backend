@@ -10,4 +10,8 @@ router.get('/adminuser',adminControllers.getAdminUser)
 
 router.get('/adminowner',adminControllers.getAdminOwner)
 
+router.post('/block-user',adminControllers.postBlockUser)
+
+router.post('/unblock-user',adminControllers.postUnblockUser)
+
 module.exports = router

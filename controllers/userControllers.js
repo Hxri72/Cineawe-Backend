@@ -53,6 +53,7 @@ module.exports = {
         try {
           //check if user exist
           const userExist = await user.findOne({ email: req.body.email });
+          
       
           if (!userExist) {
             return res.send({
@@ -60,7 +61,14 @@ module.exports = {
               message: "User does not exist",
             });
           }
-      
+
+          if(userExist.isAdminBlocked){
+            return res.send({
+              success:false,
+              message:"You are Blocked by Admin"
+            })
+          }
+
           //checking password
           const validPassword = await bcrypt.compare(
             req.body.password,

@@ -3,7 +3,8 @@ const user = require('../models/userModel')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const ownerModel = require('../models/ownerModel')
-
+const userModel = require('../models/userModel')
+const mongoose = require('mongoose')
 
 module.exports = {
     //user management
@@ -96,5 +97,55 @@ module.exports = {
             })
         }
     },
+    postBlockUser: async(req,res,next)=>{
+        try {
+            const userId = req.body.userId
+            const user = await userModel.findOne({_id:userId})
+            if(user){
+                await userModel.updateOne({_id:mongoose.Types.ObjectId(userId)},
+                {$set:{
+                    isAdminBlocked: 'true'
+                }}    
+                )
+            }
+            res.send({
+                success:true,
+                message:'User blocked Successfully'
+            })
+
+        } catch (error) {
+            res.send({
+                success:false,
+                message:error.message
+            })
+        }
+    },
+
+    postUnblockUser:async(req,res)=>{
+        try {
+            const userId = req.body.userId
+            const user = await userModel.findOne({_id:userId})
+            // console.log(userId)
+            // console.log(user)
+            if(user){
+                await userModel.updateOne({_id:mongoose.Types.ObjectId(userId)},
+                {$set:{
+                    isAdminBlocked: 'false'
+                }}    
+                )
+            }
+
+            res.send({
+                success:true,
+                message:'User unblocked successfully'
+            })
+
+        } catch (error) {
+            res.send({
+                success:false,
+                message:error.message
+            })
+        }
+    }
    
 }
