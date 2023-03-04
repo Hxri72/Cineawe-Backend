@@ -62,7 +62,7 @@ module.exports = {
             });
           }
 
-          if(userExist.isAdminBlocked){
+          if(userExist.isAdminBlocked==='true'){
             return res.send({
               success:false,
               message:"You are Blocked by Admin"

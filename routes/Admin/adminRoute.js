@@ -14,4 +14,6 @@ router.post('/block-user',adminControllers.postBlockUser)
 
 router.post('/unblock-user',adminControllers.postUnblockUser)
 
+router.post('/owner-status-change',adminControllers.postOwnerStatusChange)
+
 module.exports = router

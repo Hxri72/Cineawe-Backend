@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const ownerModel = require('../models/ownerModel')
 const userModel = require('../models/userModel')
+const nodeMailer = require("nodemailer");
 const mongoose = require('mongoose')
 
 module.exports = {
@@ -143,6 +144,80 @@ module.exports = {
         } catch (error) {
             res.send({
                 success:false,
+                message:error.message
+            })
+        }
+    },
+
+    postOwnerStatusChange:async(req,res,next)=>{
+        try {
+            
+            const ownerStatus = req.body.ownerStatus
+            const ownerId = req.body.ownerId
+
+            const owner = await ownerModel.findOne({_id:ownerId})
+
+            if(ownerStatus==='Approved'){
+                await ownerModel.findOneAndUpdate({_id:ownerId},{
+                    $set:{
+                        isAdminStatus:"Approved"
+                    }
+                }) 
+                console.log('Mail sending')
+                const ownerMail = owner.email;
+                const sender = nodeMailer.createTransport({
+                    service: "gmail",
+                    auth: {
+                      user: "hariprasad727272@gmail.com",
+                      pass: process.env.APP_PASSWORD,
+                    },
+                    tls: {
+                      rejectUnauthorized: false,
+                    },
+                  });
+                  
+                  const mailOptions = {
+                    from: "Cineawe",
+                    to: ownerMail,
+                    subject: "Account Approved",
+                    text: `Your account has been approved. As a verified theater owner, you can now add movies and shows to our platform. Please familiarize yourself with the tools and features available. Contact us if you have any questions. Thank you for choosing to partner with us.`,
+                  };
+              
+                  sender.sendMail(mailOptions, function (error, info) {
+                    if (error) {
+                      console.log(error);
+                    } else {
+                      res.send({
+                        success: true,
+                        message: "Email send successfully",
+                        data: otp,
+                      });
+                    }
+                  });
+
+                res.send({
+                    success:true,
+                    message:'Status Changed Successfully'
+                })
+            }else if(ownerStatus === 'Blocked'){
+                await ownerModel.findOneAndUpdate({_id:ownerId},{
+                    $set:{
+                        isAdminStatus:'Blocked'
+                    }
+                })
+                res.send({
+                    success:true,
+                    message:'owner is blocked successfully'
+                })
+            }else{
+                res.send({
+                    success:false,
+                    message:'something went wrong'
+                })
+            }
+        } catch (error) {
+            res.send({
+                success:true,
                 message:error.message
             })
         }

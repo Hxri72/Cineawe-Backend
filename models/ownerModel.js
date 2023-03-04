@@ -13,7 +13,7 @@ const ownerSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    isAdminApprove:{
+    isAdminStatus:{
         type:String,
         required:true
     }

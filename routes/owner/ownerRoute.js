@@ -7,5 +7,4 @@ router.post('/ownersignup',ownerControllers.postOwnerSignup)
 router.post('/owner',ownerControllers.postOwnerLogin)
 
 
-
 module.exports = router
