@@ -1,8 +1,51 @@
 const ownerModel = require("../models/ownerModel");
 const bcrypt = require('bcryptjs');
 const { toast } = require("react-toastify");
+const jwt = require('jsonwebtoken');
+const theaterModel = require("../models/theaterModel");
 
 module.exports = {
+
+    //get theaters
+    getTheaters: async(req,res,next)=>{
+        try {
+            const theaters = await theaterModel.find({})
+            
+            res.send({
+                success:true,
+                message:'Theaterlist fetched successfully',
+                data:theaters
+            })
+            
+        } catch (error) {
+            console.log(error.message)
+        }
+    },
+
+    //add theaters
+    postAddtheater: async(req,res,next)=>{
+        try {
+            const theaterExist = await theaterModel.findOne({theaterName:req.body.theaterName})
+            if(theaterExist===null){
+                const newTheater = new theaterModel(req.body)
+                await newTheater.save();
+
+                res.send({
+                    success:true,
+                    message:'Theater added successfully'
+                })
+            }else{
+                res.send({
+                    success:false,
+                    message:'Theater already exist'
+                })
+            }
+
+        } catch (error) {
+            console.log(error.message)
+        }
+    },
+
     //Theater owner signup
     postOwnerSignup: async(req,res,next)=>{
         try {
@@ -37,14 +80,18 @@ module.exports = {
     },
     //Theater owner Login
     postOwnerLogin:async(req,res,next)=>{
+       
         const owner = await ownerModel.findOne({email:req.body.email})
         if(owner){
              const validatePassword = await bcrypt.compare(req.body.password,owner.password)
              if(validatePassword){
-                if(owner.isAdminApprove==='true'){
+                //jwt token creation
+                const token = jwt.sign({_id:owner._id},process.env.jwt_secret,{expiresIn:"1d"})
+                if(owner.isAdminStatus==='Approved'){
                     res.send({
                         success:true,
-                        message:'Owner logged in successfully'
+                        message:'Owner logged in successfully',
+                        data:token
                     })
                 }else{
                     res.send({
