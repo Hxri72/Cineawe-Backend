@@ -34,25 +34,3 @@ const showSchema = new mongoose.Schema({
         required:true
     }
 })
-
-const theaterSchema = new mongoose.Schema({
-    theaterName:{
-        type:String,
-        required:true
-    },
-    address:{
-        type:String,
-        required:true
-    },
-    phone:{
-        type:String,
-        required:true
-    },
-    totalSeats:{
-        type:String,
-        required:true
-    },
-    shows:[showSchema]
-})
-
-module.exports = mongoose.model('theater',theaterSchema)

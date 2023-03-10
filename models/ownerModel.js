@@ -1,5 +1,8 @@
 const mongoose = require('mongoose')
 
+
+
+
 const ownerSchema = new mongoose.Schema({
     fullname:{
         type:String,
@@ -16,7 +19,8 @@ const ownerSchema = new mongoose.Schema({
     isAdminStatus:{
         type:String,
         required:true
-    }
+    },
+    
 })
 
 module.exports = mongoose.model('owner',ownerSchema)
