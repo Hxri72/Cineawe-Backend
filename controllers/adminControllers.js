@@ -109,9 +109,11 @@ module.exports = {
                 }}    
                 )
             }
+            const usersData = await userModel.find({})
             res.send({
                 success:true,
-                message:'User blocked Successfully'
+                message:'User blocked Successfully',
+                data:usersData
             })
 
         } catch (error) {
@@ -126,8 +128,7 @@ module.exports = {
         try {
             const userId = req.body.userId
             const user = await userModel.findOne({_id:userId})
-            // console.log(userId)
-            // console.log(user)
+            
             if(user){
                 await userModel.updateOne({_id:mongoose.Types.ObjectId(userId)},
                 {$set:{
@@ -136,9 +137,11 @@ module.exports = {
                 )
             }
 
+            const userData = await userModel.find({})
             res.send({
                 success:true,
-                message:'User unblocked successfully'
+                message:'User unblocked successfully',
+                data:userData
             })
 
         } catch (error) {
