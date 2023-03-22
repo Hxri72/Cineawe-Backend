@@ -22,17 +22,24 @@ module.exports = {
 
     getShowDates:async(req,res)=>{
       try {
-        const Dates = await theaterModel.aggregate([
-          { $unwind: "$shows" },
-          { $group: { _id: "$shows.showdate" } },
-          { $project: { _id: 0, showdate: "$_id" } }
-        ]);
+        const today = new Date();
+
+        const lastweekDates = []
+        for(let i=0;i<=6;i++){
+          const date = new Date(today)
+          date.setDate(today.getDate() + i);
+          const day = date.getDate();
+          const month = date.getMonth() + 1
+          const year = date.getFullYear()
+          const formattedDate = `${day.toString().padStart(2, "0")}/${month.toString().padStart(2, "0")}/${year}`;
+          lastweekDates.push(formattedDate)  
+        }
        
-        if(Dates){
+        if(lastweekDates.length!==0){
           res.send({
             success:true,
             message:"Show date fetched successfully",
-            data:Dates
+            data:lastweekDates
           })
         }else{
           res.send({
