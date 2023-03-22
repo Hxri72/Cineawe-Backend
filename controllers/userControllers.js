@@ -1,4 +1,5 @@
 const user = require("../models/userModel");
+const theaterModel = require('../models/theaterModel')
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const otpGenerator = require("otp-generator");
@@ -17,6 +18,35 @@ module.exports = {
         } catch (error) {
           console.log(error.message);
         }
+    },
+
+    getShowDates:async(req,res)=>{
+      try {
+        const Dates = await theaterModel.aggregate([
+          { $unwind: "$shows" },
+          { $group: { _id: "$shows.showdate" } },
+          { $project: { _id: 0, showdate: "$_id" } }
+        ]);
+       
+        if(Dates){
+          res.send({
+            success:true,
+            message:"Show date fetched successfully",
+            data:Dates
+          })
+        }else{
+          res.send({
+            success:false,
+            message:"Show date not fetched"
+          })
+        }
+
+      } catch (error) {
+        res.send({
+          success:false,
+          message:'Something went wrong'
+        })
+      }
     },
 
     postUserSignup:async(req,res,next)=>{
@@ -146,5 +176,54 @@ module.exports = {
             message: error.message,
           });
         }
+    },
+    
+    postGetShows:async(req,res)=>{
+      try {
+        const date = req.body.data.date
+        const movieName = req.body.data.movieName
+
+        const showData = await theaterModel.aggregate([
+          {
+            $match: {
+              shows: {
+                $elemMatch: {
+                  moviename: movieName,
+                  showdate: date
+                }
+              }
+            }
+          },
+          {
+            $addFields: {
+              shows: {
+                $filter: {
+                  input: "$shows",
+                  as: "show",
+                  cond: {
+                    $and: [
+                      { $eq: [ "$$show.moviename", movieName ] },
+                      { $eq: [ "$$show.showdate", date ] }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ])
+        
+       res.send({
+        success:true,
+        message:'Show date fetched successfully',
+        data:showData
+       })
+       
+        
+      } catch (error) {
+        res.send({
+          success:false,
+          message:error.message
+        })
+      }
     }
 }

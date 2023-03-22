@@ -14,4 +14,8 @@ router.post("/login",userControllers.postUserLogin);
 //checking the authorization of user
 router.post("/getcurrentuser",authMiddleware,userControllers.getCurrentUser);
 
+router.get("/get-show-dates",userControllers.getShowDates)
+
+router.post("/get-shows",userControllers.postGetShows)
+
 module.exports = router;

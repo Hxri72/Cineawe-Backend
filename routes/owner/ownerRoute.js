@@ -2,7 +2,7 @@ const router = require("express").Router();
 const ownerControllers = require("../../controllers/ownerControllers");
 
 
-router.get('/get-theaters',ownerControllers.getTheaters)
+router.post('/get-theaters',ownerControllers.getTheaters)
 
 router.post('/get-theater-details',ownerControllers.getTheaterDetails)
 

@@ -17,7 +17,11 @@ const showSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    showdate:{
+    startdate:{
+        type:String,
+        required:true
+    },
+    enddate:{
         type:String,
         required:true
     },
@@ -48,7 +52,19 @@ const theaterSchema = new mongoose.Schema({
         type:String,
         required:true
     },
+    totalRows:{
+        type:String,
+        required:true
+    },
+    totalColumns:{
+        type:String,
+        required:true
+    },
     totalSeats:{
+        type:String,
+        required:true
+    },
+    ownerEmail:{
         type:String,
         required:true
     },
