@@ -6,6 +6,7 @@ const ownerModel = require('../models/ownerModel')
 const userModel = require('../models/userModel')
 const nodeMailer = require("nodemailer");
 const mongoose = require('mongoose')
+const theaterModel = require('../models/theaterModel')
 
 module.exports = {
     //user management
@@ -27,6 +28,20 @@ module.exports = {
             message:'Ownerlist fetched successfully',
             data:owners
         })
+    },
+
+    getTheaters: async(req,res,next)=>{
+        try {
+            const theaters = await theaterModel.find({})
+            res.send({
+                success:true,
+                message:'Theaterlist fetched successfully',
+                data:theaters
+            })
+            
+        } catch (error) {
+            console.log(error.message)
+        }
     },
 
     //admin login

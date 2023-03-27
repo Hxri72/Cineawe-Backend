@@ -196,13 +196,15 @@ module.exports = {
               shows: {
                 $elemMatch: {
                   moviename: movieName,
-                  showdate: date
+                  startdate: { $lte: date },
+                  enddate: { $gte: date }
                 }
               }
             }
           },
           {
-            $addFields: {
+            $project: {
+              theaterName:1,
               shows: {
                 $filter: {
                   input: "$shows",
@@ -210,7 +212,8 @@ module.exports = {
                   cond: {
                     $and: [
                       { $eq: [ "$$show.moviename", movieName ] },
-                      { $eq: [ "$$show.showdate", date ] }
+                      { $lte: [ "$$show.startdate", date ] },
+                      { $gte: [ "$$show.enddate", date ] }
                     ]
                   }
                 }
@@ -218,6 +221,8 @@ module.exports = {
             }
           }
         ])
+
+        console.log(showData)
         
        res.send({
         success:true,
@@ -232,5 +237,26 @@ module.exports = {
           message:error.message
         })
       }
-    }
+    },
+
+    getTheater:async(req,res,next)=>{
+      try {   
+          const theaterName = req.body.theaterName
+          const theater = await theaterModel.find({theaterName:theaterName})
+          if(theater){
+              res.send({
+                  success:true,
+                  message:'Theater Details Fetched successfully',
+                  data:theater
+              })
+          }else{
+              res.send({
+                  success:false,
+                  message:'Theater details not fetched'
+              })
+          }
+      } catch (error) {
+          console.log(error.message)
+      }
+  },
 }

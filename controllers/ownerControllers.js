@@ -41,6 +41,7 @@ module.exports = {
     getShowDetails:async(req,res,next)=>{
         try {
             const showDetails = await theaterModel.findOne({_id:req.body.theaterId})
+            console.log(showDetails)
             if(showDetails){
                 return res.send({
                     success:true,
@@ -256,20 +257,37 @@ module.exports = {
 
     postAddShows:async(req,res,next)=>{
         try {
-            const showData = req.body.showData
+        const showData = req.body.showData
         const startDate = showData.startDate
         const endDate = showData.endDate
+        const showTime = showData.showtime
 
          // replace with your date string
         const partsStartDate = startDate.split("-");
-        const formattedStartDate = `${partsStartDate[2]}-${partsStartDate[1]}-${partsStartDate[0]}`;
+        const formattedStartDate = `${partsStartDate[2]}/${partsStartDate[1]}/${partsStartDate[0]}`;
         
 
         const partsEndDate = endDate.split("-");
-        const formattedEndDate = `${partsEndDate[2]}-${partsEndDate[1]}-${partsEndDate[0]}`;
-         
+        const formattedEndDate = `${partsEndDate[2]}/${partsEndDate[1]}/${partsEndDate[0]}`;
 
+        const [hours, minutes] = showTime.split(':');
+        const period = hours < 12 ? 'AM' : 'PM';
+        const hours12 = hours % 12 || 12;
+        const time12 = `${hours12}:${minutes} ${period}`;
+
+        
         const theaterExist = await theaterModel.findOne({theaterName:showData.theatername})
+        
+        const theaterSeats = []
+
+        for (let i = 0; i < theaterExist.totalRows; i++) {
+            for (let j = 0; j < theaterExist.totalColumns; j++) {
+              const seatId = String.fromCharCode(65 + i) + '-' + (j + 1);
+              const seat = { id: seatId,seatStatus:'available'};
+              theaterSeats.push(seat);
+            }
+        }
+
         if(theaterExist){
             await theaterModel.updateOne({theaterName:showData.theatername},{
                 $push:{
@@ -280,9 +298,10 @@ module.exports = {
                         ticketprice:showData.ticketprice,
                         startdate:formattedStartDate,
                         enddate:formattedEndDate,
-                        showtime:showData.showtime,
+                        showtime:time12,
                         availableseats:theaterExist.totalSeats,
-                        totalseats:theaterExist.totalSeats
+                        totalseats:theaterExist.totalSeats,
+                        seats:theaterSeats
                     }
                 }
             })

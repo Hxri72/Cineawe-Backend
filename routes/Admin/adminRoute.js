@@ -16,4 +16,6 @@ router.post('/unblock-user',adminControllers.postUnblockUser)
 
 router.post('/owner-status-change',adminControllers.postOwnerStatusChange)
 
+router.get('/get-theaters',adminControllers.getTheaters)
+
 module.exports = router

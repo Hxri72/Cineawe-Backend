@@ -36,7 +36,8 @@ const showSchema = new mongoose.Schema({
     totalseats:{
         type:String,
         required:true
-    }
+    },
+    seats:[]
 })
 
 const theaterSchema = new mongoose.Schema({

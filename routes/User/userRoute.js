@@ -18,4 +18,6 @@ router.get("/get-show-dates",userControllers.getShowDates)
 
 router.post("/get-shows",userControllers.postGetShows)
 
+router.post('/get-theater',userControllers.getTheater)
+
 module.exports = router;
