@@ -1,6 +1,8 @@
 const router = require("express").Router();
+const authMiddleware = require("../../authMiddleware/authMiddleware");
 const ownerControllers = require("../../controllers/ownerControllers");
 
+router.post('/getCurrentOwner',authMiddleware,ownerControllers.getCurrentOwner)
 
 router.post('/get-theaters',ownerControllers.getTheaters)
 

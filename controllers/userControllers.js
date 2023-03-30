@@ -4,16 +4,19 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const otpGenerator = require("otp-generator");
 const nodeMailer = require("nodemailer");
+const Razorpay = require('razorpay')
+const crypto = require('crypto');
+const bookingModel = require("../models/bookingModel");
 
 module.exports = {
 
     getCurrentUser: async (req, res) => {
         try {
-          const User = await user.findById(req.body.userId).select("-password");
+          const User = await user.findById(req.body.Id).select("-password");
           res.send({
             success: true,
             message: "User Details fetched successfully",
-            data: User,
+            data: User
           });
         } catch (error) {
           console.log(error.message);
@@ -259,4 +262,90 @@ module.exports = {
           console.log(error.message)
       }
   },
+
+  getCreateOrder : async (req,res) => {
+    try {
+      const amount = req.body.amount
+      var instance = new Razorpay({ key_id: process.env.Razorpay_KEY_ID, key_secret: process.env.Razorpay_Secret })
+      const options = {
+        amount: amount * 100,
+        currency: 'INR',
+      };
+      instance.orders.create(options, (err, order) => {
+        if (err) {
+          console.log(err);
+          res.status(500).send('Something went wrong');
+        }
+        res.json(order);
+      });
+    } catch (error) {
+      
+      console.log(error.message)
+    }
+  },
+
+  postVerifyPayment : async(req,res,next) => {
+    try {
+      const paymentDetails = req.body
+      const paymentData = paymentDetails.paymentData
+
+      const userDetails = paymentData.user
+      const contactMail = paymentData.email
+      const contactPhone = paymentData.phone
+      const showData = paymentData.showData
+      const selectedSeats = paymentData.selectedSeats
+      const showDate = paymentData.showDate
+      const price = paymentData.price
+      const showId = showData._id
+
+      const subTotal = selectedSeats.length * showData.ticketprice
+
+      let hmac = crypto.createHmac('sha256',process.env.Razorpay_Secret)
+      hmac.update(paymentDetails.payment.razorpay_order_id+'|'+ paymentDetails.payment.razorpay_payment_id);
+      hmac = hmac.digest('hex')
+
+      if(hmac === paymentDetails.payment.razorpay_signature){
+        
+        await bookingModel.insertMany({
+            user : userDetails.firstname,
+            userMail : userDetails.email,
+            contactMail : contactMail,
+            contactPhone : contactPhone,
+            theaterName: showData.theatername,
+            movieName : showData.moviename,
+            showDate : showDate,
+            showTime : showData.showtime,
+            subTotal : subTotal,
+            totalPrice : price,
+            selectedSeats : selectedSeats
+        })
+
+        await theaterModel.updateOne({
+            theaterName:showData.theatername,
+            "shows._id": showId,
+            "shows.seats.id": { $in: selectedSeats.map(seat => seat.id) }
+          },
+          { $set: { "shows.$[show].seats.$[seat].seatStatus": "sold" } },
+          { arrayFilters: [
+              { "show._id": showId },
+              { "seat.id": { $in: selectedSeats.map(seat => seat.id) }}
+            ]
+        })
+
+        res.send({
+          success:true,
+          message:'verification complete'
+        })
+
+      }else{
+        res.send({
+          success:false,
+          message:'something went wrong'
+        })
+      }
+
+    } catch (error) {
+      console.log(error.message)
+    }
+  }
 }

@@ -20,4 +20,8 @@ router.post("/get-shows",userControllers.postGetShows)
 
 router.post('/get-theater',userControllers.getTheater)
 
+router.post('/get-create-order',userControllers.getCreateOrder)
+
+router.post('/verify-payment',userControllers.postVerifyPayment)
+
 module.exports = router;

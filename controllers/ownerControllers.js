@@ -7,6 +7,18 @@ const { findOne } = require("../models/ownerModel");
 
 module.exports = {
 
+    getCurrentOwner:async(req,res,next)=>{
+        try {
+            const owner = await ownerModel.findById(req.body.Id).select("-password")
+            res.send({
+                success: true,
+                message: "User Details fetched successfully",
+                data: owner
+              });
+        } catch (error) {
+            return error.message
+        }
+    },
     //get theaters
     getTheaters: async(req,res,next)=>{
         try {

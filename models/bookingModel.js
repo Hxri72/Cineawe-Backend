@@ -1,44 +1,54 @@
 const mongoose = require('mongoose')
 
-const showSchema = new mongoose.Schema({
-    theatername:{
-        type:String,
-        ref: 'Theater',
-        required:true
-    },
-    showname:{
+const seatSchema = new mongoose.Schema({
+    id : {
         type:String,
         required:true
     },
-    moviename:{
-        type:String,
-        required:true
-    },
-    ticketprice:{
-        type:String,
-        required:true
-    },
-    startdate:{
-        type:String,
-        required:true
-    },
-    enddate:{
-        type:String,
-        required:true
-    },
-    showtime:{
-        type:String,
-        required:true
-    },
-    availableseats:{
-        type:String,
-        required:true
-    },
-    totalseats:{
-        type:String,
-        required:true
-    },
-    seats:[]
 })
 
-export default show = module.exports = mongoose.model('shows',showSchema)
+const bookingSchema = new mongoose.Schema({
+    user : {
+        type:String,
+        required:true
+    },
+    userMail : {
+        type:String,
+        required:true
+    },
+    contactMail : {
+        type:String,
+        required:true
+    },
+    contactPhone : {
+        type:String,
+        required:true
+    },
+    theaterName : {
+        type:String,
+        required:true
+    },
+    movieName : {
+        type:String,
+        required:true
+    },
+    showDate:{
+        type:String,
+        required:true
+    },
+    showTime:{
+        type:String,
+        required:true
+    },
+    subTotal:{
+        type:String,
+        required:true
+    },
+    totalPrice:{
+        type:String,
+        required:true
+    },
+    selectedSeats:[seatSchema],
+})
+
+module.exports = mongoose.model('bookings',bookingSchema)
