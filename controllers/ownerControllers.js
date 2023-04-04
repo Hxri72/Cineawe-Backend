@@ -172,13 +172,13 @@ module.exports = {
     postAddtheater: async(req,res,next)=>{
         try {
             const theaterExist = await theaterModel.findOne({theaterName:req.body.theaterName})
-            console.log(req.body)   
+              
             const rows  = req.body.totalRows
             const columns = req.body.totalColumns
             const totalSeats = rows*columns
-            console.log(totalSeats)
+            
             req.body.totalSeats = `${totalSeats}`
-            console.log(req.body)
+            
             if(theaterExist===null){
                 const newTheater = new theaterModel(req.body)
                 await newTheater.save();
@@ -273,6 +273,7 @@ module.exports = {
         const startDate = showData.startDate
         const endDate = showData.endDate
         const showTime = showData.showtime
+        const language = showData.movieLanguage
 
          // replace with your date string
         const partsStartDate = startDate.split("-");
@@ -300,6 +301,27 @@ module.exports = {
             }
         }
 
+        const Dates = []
+        
+        var currentDate = formattedStartDate
+        console.log(currentDate)
+        console.log(formattedEndDate)
+        
+        while (currentDate <= formattedEndDate) {
+            const Array = ({
+              date: currentDate,
+              seats: theaterSeats
+            });
+            Dates.push(Array);
+            
+            const dateParts = currentDate.split('/');
+            const day = parseInt(dateParts[0], 10) + 1;
+            const month = dateParts[1];
+            const year = dateParts[2];
+            currentDate = `${day.toString().padStart(2, '0')}/${month}/${year}`;
+        }
+        
+
         if(theaterExist){
             await theaterModel.updateOne({theaterName:showData.theatername},{
                 $push:{
@@ -307,13 +329,14 @@ module.exports = {
                         theatername:showData.theatername,
                         showname:showData.showname,
                         moviename:showData.moviename,
+                        movielanguage:language,
                         ticketprice:showData.ticketprice,
                         startdate:formattedStartDate,
                         enddate:formattedEndDate,
                         showtime:time12,
                         availableseats:theaterExist.totalSeats,
                         totalseats:theaterExist.totalSeats,
-                        seats:theaterSeats
+                        dates:Dates,                       
                     }
                 }
             })

@@ -18,4 +18,12 @@ router.post('/owner-status-change',adminControllers.postOwnerStatusChange)
 
 router.get('/get-theaters',adminControllers.getTheaters)
 
+router.get('/getAllBooking',adminControllers.getAllBooking)
+
+router.post('/add-movies',adminControllers.postAddMovies)
+
+router.get('/get-movies',adminControllers.getMovies)
+
+router.post('/delete-movie',adminControllers.postDeleteMovie)
+
 module.exports = router

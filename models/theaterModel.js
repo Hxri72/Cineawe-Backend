@@ -52,6 +52,10 @@ const showSchema = new mongoose.Schema({
         type:String,
         required:true
     },
+    movielanguage:{
+        type:String,
+        required:true
+    },
     ticketprice:{
         type:String,
         required:true
@@ -74,6 +78,10 @@ const showSchema = new mongoose.Schema({
     },
     totalseats:{
         type:String,
+        required:true
+    },
+    dates:{
+        type:Array,
         required:true
     },
     seats:[]

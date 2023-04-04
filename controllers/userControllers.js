@@ -7,6 +7,9 @@ const nodeMailer = require("nodemailer");
 const Razorpay = require('razorpay')
 const crypto = require('crypto');
 const bookingModel = require("../models/bookingModel");
+const movieModel = require('../models/movieModel');
+const API_KEY = require('../constants/constants')
+const axios = require('axios');
 
 module.exports = {
 
@@ -313,6 +316,7 @@ module.exports = {
             contactPhone : contactPhone,
             theaterName: showData.theatername,
             movieName : showData.moviename,
+            showId : showId,
             showDate : showDate,
             showTime : showData.showtime,
             subTotal : subTotal,
@@ -323,11 +327,13 @@ module.exports = {
         await theaterModel.updateOne({
             theaterName:showData.theatername,
             "shows._id": showId,
-            "shows.seats.id": { $in: selectedSeats.map(seat => seat.id) }
+            "shows.dates.date" : showDate,
+            "shows.dates.seats.id": { $in: selectedSeats.map(seat => seat.id) }
           },
-          { $set: { "shows.$[show].seats.$[seat].seatStatus": "sold" } },
+          { $set: { "shows.$[show].dates.$[date].seats.$[seat].seatStatus": "sold" } },
           { arrayFilters: [
               { "show._id": showId },
+              { "date.date": showDate },
               { "seat.id": { $in: selectedSeats.map(seat => seat.id) }}
             ]
         })
@@ -346,6 +352,145 @@ module.exports = {
 
     } catch (error) {
       console.log(error.message)
+    }
+  },
+
+  getTickets: async(req,res,next) => {
+    try {
+      const userMail = req.body.userMail
+      const bookingData = await bookingModel.aggregate([
+        {
+          $match:{
+            userMail:userMail
+          }
+        }
+      ])
+
+      res.send({
+        success:true,
+        message:'bookingData fetched successfully',
+        data:bookingData
+      })
+
+    } catch (error) {
+      console.log(error.message)
+    }
+  },
+  postCancelBooking:async(req,res,next)=>{
+    try {
+
+      const bookingId = req.body.bookingId
+      const showId = req.body.showId
+      const selectedSeats = req.body.selectedSeats
+      const theaterName = req.body.theaterName
+      const showDate = req.body.showDate
+
+      await bookingModel.deleteOne({_id:bookingId})
+      const response = await bookingModel.find({})
+
+      await theaterModel.updateOne({
+        theaterName:theaterName,
+        "shows._id": showId,
+        "shows.dates.date" : showDate,
+        "shows.dates.seats.id": {$in: selectedSeats.map(seat => seat.id)}
+      },
+      { $set: { "shows.$[show].dates.$[date].seats.$[seat].seatStatus": "available"} },
+      { arrayFilters: [
+          { "show._id": showId },
+          { "date.date": showDate },
+          { "seat.id": { $in: selectedSeats.map(seat => seat.id)}}
+        ]
+      })
+
+    res.send({
+      success:true,
+      message:'booking cancelled',
+      data:response
+    })
+
+      
+    } catch (error) {
+      console.log(error.message)
+    }
+  },
+  postGetSeats: async(req,res,next) => {
+    try {
+      
+      const dates = req.body.Dates
+      const selectedDate = req.body.date
+
+      const matchedDate = dates.find((obj)=> obj.date === selectedDate)
+
+      if(matchedDate){
+        const seats = matchedDate.seats
+
+        res.send({
+          success:true,
+          message:'seats fetched successfully',
+          data:seats
+        })
+      }else{
+        res.send({
+          success:false,
+          message:'seats not fetched'
+        })
+      }
+
+    } catch (error) {
+      res.send({
+        success:false,
+        message:'The seatsData is not fetched'    
+      })
+    }
+  },
+  getAllMovies : async(req,res,next) => {
+    try {
+      const Movies = await movieModel.find({})
+      const englishMovies = Movies[0].englishMovies
+      const malayalamMovies = Movies[0].malayalamMovies
+      const tamilMovies = Movies[0].tamilMovies
+
+      const englishMoviesTmdb = []
+
+      for (const movieTitle of englishMovies) {
+        const movieName = movieTitle.movieName;
+        const response = await axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${movieName}`);
+        englishMoviesTmdb.push( response.data.results[0] );
+      }
+
+      const malayalamMoviesTmdb = []
+
+      for (const movieTitle of malayalamMovies) {
+        const movieName = movieTitle.movieName;
+        const response = await axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${movieName}`);
+        malayalamMoviesTmdb.push( response.data.results[0] );
+      }
+
+      const tamilMoviesTmdb = []
+
+      for (const movieTitle of tamilMovies) {
+        const movieName = movieTitle.movieName;
+        const response = await axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${movieName}`);
+        tamilMoviesTmdb.push( response.data.results[0] );
+      }
+
+      const data = {
+        englishMovies : englishMoviesTmdb,
+        malayalamMovies : malayalamMoviesTmdb,
+        tamilMovies : tamilMoviesTmdb
+      }
+
+      res.send({
+        success:true,
+        message:'data fetched successfully',
+        data:data
+      })
+
+    } catch (error) {
+      return res.send({
+        success:false,
+        message:'Something went wrong'
+      })
     }
   }
 }

@@ -7,6 +7,9 @@ const userModel = require('../models/userModel')
 const nodeMailer = require("nodemailer");
 const mongoose = require('mongoose')
 const theaterModel = require('../models/theaterModel')
+const bookingModel = require('../models/bookingModel')
+const moviesModel = require('../models/movieModel')
+const movieModel = require('../models/movieModel')
 
 module.exports = {
     //user management
@@ -41,6 +44,140 @@ module.exports = {
             
         } catch (error) {
             console.log(error.message)
+        }
+    },
+    getAllBooking : async (req,res,next) => {
+        try {
+            const bookings = await bookingModel.find({})
+            if(bookings){
+                res.send({
+                    success:true,
+                    message:'bookingData fetched succesfully',
+                    data:bookings
+                })
+            }
+          } catch (error) {
+            console.log(error.response)
+          }
+    
+    },
+
+    postAddMovies:async(req,res) => {
+        try {
+            
+            const movieName = req.body.movieDetails.title
+            const movieId = req.body.movieDetails.id
+            const movieLanguage = req.body.movieDetails.original_language
+
+            const data = {
+                movieName:movieName,
+                movieId:movieId,
+                movieLanguage:movieLanguage
+            }
+
+            const movieExist = await moviesModel.find({
+                $or: [
+                    { englishMovies: { $elemMatch: { movieName: movieName } } },
+                    { malayalamMovies: { $elemMatch: { movieName: movieName } } },
+                    { tamilMovies: { $elemMatch: { movieName: movieName} } }
+                ]
+            })
+
+            
+
+            const moviesExist = await moviesModel.find({})
+            
+            if(moviesExist.length === 0){
+                if(movieLanguage === 'en'){
+                    const movies = new moviesModel({
+                        englishMovies : data
+                    })
+                    movies.save();
+                }else if(movieLanguage === 'ml'){
+                    const movies = new moviesModel({
+                        malayalamMovies : data
+                    })
+                    movies.save()
+                }else if(movieLanguage === 'ta'){
+                    const movies = new moviesModel({
+                        tamilMovies : data
+                    })
+                    movies.save()
+                }
+            }else{
+                if(movieExist.length === 0){
+                    if(movieLanguage === 'en'){
+                        console.log('its');
+                        await moviesModel.updateOne({
+                            $push : {
+                                englishMovies :data
+                            }
+                        })
+                        
+                    }else if(movieLanguage === 'ml'){
+                        await moviesModel.updateOne({
+                            $push:{
+                                malayalamMovies : data
+                            }
+                        })
+                    }else if(movieLanguage === 'ta'){
+                        await moviesModel.updateOne({
+                            $push : {
+                                tamilMovies : data
+                            }
+                        })
+                    }
+                }else{
+                    return res.send({
+                        success:false,
+                        message:'movie already added'
+                    })
+                }
+                
+            }
+
+            res.send({
+                success:true,
+                message:'Movie added successfully'
+            })
+
+        } catch (error) {
+            res.send({
+                success:false,
+                message:'data not stored'
+            })
+
+        }
+    },
+
+    getMovies : async(req,res)=> {
+        try {
+            const data = await moviesModel.find({})
+            const wholeData = []
+            
+            for(let i=0;i<data[0].englishMovies.length;i++){
+                wholeData.push(data[0].englishMovies[i])
+            }
+
+            for(let i=0;i<data[0].malayalamMovies.length;i++){
+                wholeData.push(data[0].malayalamMovies[i])
+            }
+
+            for(let i=0;i<data[0].tamilMovies.length;i++){
+                wholeData.push(data[0].tamilMovies[i])
+            }
+            
+            res.send({
+                success:true,
+                message:'data fetched successfully',
+                data:wholeData
+            })
+           
+        } catch (error) {
+            res.send({
+                success:false,
+                message:'data is not fetched'
+            })
         }
     },
 
@@ -236,6 +373,57 @@ module.exports = {
         } catch (error) {
             res.send({
                 success:true,
+                message:error.message
+            })
+        }
+    },
+
+    postDeleteMovie : async (req,res,next) => {
+        try {
+            const movieId = req.body.movieId
+            await movieModel.updateMany({},{
+                 $pull: { 
+                    englishMovies: { 
+                      movieId: { 
+                        $in: [ movieId ] 
+                      } 
+                    },
+                    malayalamMovies: { 
+                      movieId: { 
+                        $in: [ movieId ] 
+                      } 
+                    },
+                    tamilMovies: { 
+                      movieId: { 
+                        $in: [ movieId ] 
+                      } 
+                    }
+                  } 
+            })
+
+            const data = await moviesModel.find({})
+            const wholeData = []
+            
+            for(let i=0;i<data[0].englishMovies.length;i++){
+                wholeData.push(data[0].englishMovies[i])
+            }
+
+            for(let i=0;i<data[0].malayalamMovies.length;i++){
+                wholeData.push(data[0].malayalamMovies[i])
+            }
+
+            for(let i=0;i<data[0].tamilMovies.length;i++){
+                wholeData.push(data[0].tamilMovies[i])
+            }
+
+            res.send({
+                success:true,
+                message:'Movie deleted successfully',
+                data:wholeData
+            })
+        } catch (error) {
+            res.send({
+                success:false,
                 message:error.message
             })
         }

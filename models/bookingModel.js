@@ -21,7 +21,7 @@ const bookingSchema = new mongoose.Schema({
         required:true
     },
     contactPhone : {
-        type:String,
+        type:Number,
         required:true
     },
     theaterName : {
@@ -30,6 +30,10 @@ const bookingSchema = new mongoose.Schema({
     },
     movieName : {
         type:String,
+        required:true
+    },
+    showId : {
+        type:Number,
         required:true
     },
     showDate:{
@@ -41,11 +45,11 @@ const bookingSchema = new mongoose.Schema({
         required:true
     },
     subTotal:{
-        type:String,
+        type:Number,
         required:true
     },
     totalPrice:{
-        type:String,
+        type:Number,
         required:true
     },
     selectedSeats:[seatSchema],

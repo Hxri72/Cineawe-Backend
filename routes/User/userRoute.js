@@ -24,4 +24,14 @@ router.post('/get-create-order',userControllers.getCreateOrder)
 
 router.post('/verify-payment',userControllers.postVerifyPayment)
 
+router.post('/get-tickets',userControllers.getTickets)
+
+router.post('/get-seats',userControllers.postGetSeats)
+
+router.post('/cancel-booking',userControllers.postCancelBooking)
+
+router.get('/get-all-movies',userControllers.getAllMovies)
+
+
+
 module.exports = router;
