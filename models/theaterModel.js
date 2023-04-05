@@ -57,7 +57,7 @@ const showSchema = new mongoose.Schema({
         required:true
     },
     ticketprice:{
-        type:String,
+        type:Number,
         required:true
     },
     startdate:{
@@ -73,18 +73,17 @@ const showSchema = new mongoose.Schema({
         required:true
     },
     availableseats:{
-        type:String,
+        type:Number,
         required:true
     },
     totalseats:{
-        type:String,
+        type:Number,
         required:true
     },
     dates:{
         type:Array,
         required:true
-    },
-    seats:[]
+    }
 })
 
 const theaterSchema = new mongoose.Schema({
@@ -97,19 +96,19 @@ const theaterSchema = new mongoose.Schema({
         required:true
     },
     phone:{
-        type:String,
+        type:Number,
         required:true
     },
     totalRows:{
-        type:String,
+        type:Number,
         required:true
     },
     totalColumns:{
-        type:String,
+        type:Number,
         required:true
     },
     totalSeats:{
-        type:String,
+        type:Number,
         required:true
     },
     ownerEmail:{
