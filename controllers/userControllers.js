@@ -8,7 +8,6 @@ const Razorpay = require('razorpay')
 const crypto = require('crypto');
 const bookingModel = require("../models/bookingModel");
 const movieModel = require('../models/movieModel');
-const API_KEY = require('../constants/constants')
 const axios = require('axios');
 
 module.exports = {
@@ -445,6 +444,7 @@ module.exports = {
   },
   getAllMovies : async(req,res,next) => {
     try {
+      
       const Movies = await movieModel.find({})
       const englishMovies = Movies[0].englishMovies
       const malayalamMovies = Movies[0].malayalamMovies
@@ -454,15 +454,16 @@ module.exports = {
 
       for (const movieTitle of englishMovies) {
         const movieName = movieTitle.movieName;
-        const response = await axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${movieName}`);
+        const response = await axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${process.env.API_KEY}&query=${movieName}`);
         englishMoviesTmdb.push( response.data.results[0] );
       }
+     
 
       const malayalamMoviesTmdb = []
 
       for (const movieTitle of malayalamMovies) {
         const movieName = movieTitle.movieName;
-        const response = await axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${movieName}`);
+        const response = await axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${process.env.API_KEY}&query=${movieName}`);
         malayalamMoviesTmdb.push( response.data.results[0] );
       }
 
@@ -470,7 +471,7 @@ module.exports = {
 
       for (const movieTitle of tamilMovies) {
         const movieName = movieTitle.movieName;
-        const response = await axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${movieName}`);
+        const response = await axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${process.env.API_KEY}&query=${movieName}`);
         tamilMoviesTmdb.push( response.data.results[0] );
       }
 

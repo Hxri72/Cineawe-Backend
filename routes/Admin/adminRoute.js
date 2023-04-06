@@ -26,4 +26,6 @@ router.get('/get-movies',adminControllers.getMovies)
 
 router.post('/delete-movie',adminControllers.postDeleteMovie)
 
+router.get('/get-dashboardData',adminControllers.getDashboardData)
+
 module.exports = router

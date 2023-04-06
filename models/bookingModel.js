@@ -33,7 +33,7 @@ const bookingSchema = new mongoose.Schema({
         required:true
     },
     showId : {
-        type:Number,
+        type:String,
         required:true
     },
     showDate:{

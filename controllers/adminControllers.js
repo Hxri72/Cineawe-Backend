@@ -427,6 +427,65 @@ module.exports = {
                 message:error.message
             })
         }
+    },
+
+    getDashboardData:async(req,res,next) => {
+        try {
+            
+            const bookings = await bookingModel.find({})
+            let totalSales = 0
+            bookings.map((booking)=>{
+                totalSales = booking.totalPrice + totalSales
+            })
+            
+            let totalProfit = 0
+            bookings.map((booking)=>{
+                totalProfit = ((booking.totalPrice - booking.subTotal) * 40) /100 + totalProfit
+            })
+
+
+            totalProfit = Math.floor(totalProfit)
+
+            const users = await user.find({})
+            let totalUsers = users.length
+            
+            const theaters = await theaterModel.find({})
+            let totalTheaters = theaters.length
+
+            const today = new Date();
+
+            const lastweekDates = []
+            for(let i=0;i<=8;i++){
+            const date = new Date(today)
+            date.setDate(today.getDate() + i);
+            const day = date.getDate();
+            const month = date.getMonth() + 1
+            const year = date.getFullYear()
+            const formattedDate = `${day.toString().padStart(2, "0")}/${month.toString().padStart(2, "0")}`;
+            lastweekDates.push(formattedDate)  
+            }
+            
+
+            const data = {
+                totalSales:totalSales,
+                totalProfit:totalProfit,
+                totalUsers:totalUsers,
+                totalTheaters:totalTheaters,
+                lastweekDates:lastweekDates
+            }
+
+            res.send({
+                success:true,
+                message:'data fetched successfully',
+                data:data
+            })  
+
+        } catch (error) {
+            res.send({
+                success:false,
+                message:'something went wrong'
+            })
+        }
     }
    
 }
