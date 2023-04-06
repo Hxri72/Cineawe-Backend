@@ -4,7 +4,16 @@ const cors = require('cors')
 require('dotenv').config()
 
 app.use(express.json())
-app.use(cors())
+app.use(
+    CORS({
+      // origin: ["http://localhost:3000"],
+    origin: ["https://www.cineawe.online"],
+      methods: ["GET", "POST", "PUT", "DELETE","HEAD", "OPTIONS"],
+      credentials: true,  
+      exposedHeaders: ["Content-Length", "X-Foo", "X-Bar"],
+  
+    })
+  );
 
 //database connection
 require("./config/dbConfig")
