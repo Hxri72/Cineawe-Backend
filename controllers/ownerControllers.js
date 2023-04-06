@@ -1,9 +1,7 @@
 const ownerModel = require("../models/ownerModel");
 const bcrypt = require('bcryptjs');
-const { toast } = require("react-toastify");
 const jwt = require('jsonwebtoken');
 const theaterModel = require("../models/theaterModel");
-const { findOne } = require("../models/ownerModel");
 
 module.exports = {
 
