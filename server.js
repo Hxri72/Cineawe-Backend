@@ -6,7 +6,7 @@ require('dotenv').config()
 app.use(express.json())
 
 app.use(cors({
-    origin : "https://cineawe.online",
+    origin : "*",
     methods : ["GET","POST","PUT","DELETE"]
 }));
 
