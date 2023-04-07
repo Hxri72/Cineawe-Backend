@@ -5,12 +5,14 @@ require('dotenv').config()
 
 app.use(express.json())
 
-app.use(cors({
-    origin : "http://localhost:3000",
-    methods : ["GET","POST","PUT","DELETE"],
-    credentials : true,
-    allowedHeaders : ['X-Requested-With,content-type']
-}));
+app.use(cors())
+
+// app.use(cors({
+//     origin : "https://cineawe.online",
+//     methods : ["GET","POST","PUT","DELETE"],
+//     credentials : true,
+//     allowedHeaders : ['X-Requested-With,content-type']
+// }));
 
 // app.use(function (req, res, next) {
 

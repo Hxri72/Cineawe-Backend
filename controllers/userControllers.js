@@ -195,7 +195,7 @@ module.exports = {
         const date = req.body.data.date
         const movieName = req.body.data.movieName
 
-        const showData = await theaterModel.aggregate([
+        let showData = await theaterModel.aggregate([
           {
             $match: {
               shows: {
@@ -227,7 +227,47 @@ module.exports = {
           }
         ])
 
-        console.log(showData)
+        // const options = {
+        //   timeZone: 'Asia/Kolkata', 
+        //   hour12: true 
+        // };
+
+        // const currentTime = new Date().toLocaleString('en-US', options);
+        // const numTime = currentTime.slice(10,14)
+        // const timeZone = currentTime.slice(18,20)
+        // const currentTimeAccurate = `${numTime}`+' '+`${timeZone}`
+        // console.log(currentTimeAccurate)
+
+        // const upcomingShows = [];
+
+        // for (let i = 0; i < showData.length; i++){
+        //   const shows = showData[i].shows;
+          
+        //   // Iterate through the shows array in each object
+        //   for (let j = 0; j < shows.length; j++){
+        //     const showTime = (shows[j].showtime);
+            
+        //     const parseTime = (timeStr) => {
+        //       const [hours, minutes, period] = timeStr.split(':');
+        //       let totalMinutes = (parseInt(hours) % 12) * 60 + parseInt(minutes);
+        //       if (period === 'PM') {
+        //         totalMinutes += 12 * 60;
+        //       }
+        //       return totalMinutes;
+        //     };
+            
+        //     const aMinutes = parseTime(currentTimeAccurate);
+        //     const bMinutes = parseTime(showTime);
+            
+        //     // Check if the show time is after the current time
+        //     if (aMinutes > bMinutes) {
+              
+        //       // Push the show object into the upcomingShows array
+        //       upcomingShows.push(shows[j]);
+        //     }
+        //   }
+        // }
+        // showData = upcomingShows
         
        res.send({
         success:true,
@@ -378,28 +418,34 @@ module.exports = {
   postCancelBooking:async(req,res,next)=>{
     try {
 
+      
+
       const bookingId = req.body.bookingId
       const showId = req.body.showId
       const selectedSeats = req.body.selectedSeats
       const theaterName = req.body.theaterName
       const showDate = req.body.showDate
 
+      
+
       await bookingModel.deleteOne({_id:bookingId})
       const response = await bookingModel.find({})
 
-      await theaterModel.updateOne({
+      const updation = await theaterModel.updateOne({
         theaterName:theaterName,
         "shows._id": showId,
         "shows.dates.date" : showDate,
-        "shows.dates.seats.id": {$in: selectedSeats.map(seat => seat.id)}
+        "shows.dates.seats.id": { $in: selectedSeats.map(seat => seat.id) }
       },
-      { $set: { "shows.$[show].dates.$[date].seats.$[seat].seatStatus": "available"} },
+      { $set: { "shows.$[show].dates.$[date].seats.$[seat].seatStatus": "available" } },
       { arrayFilters: [
           { "show._id": showId },
           { "date.date": showDate },
-          { "seat.id": { $in: selectedSeats.map(seat => seat.id)}}
+          { "seat.id": { $in: selectedSeats.map(seat => seat.id) }}
         ]
-      })
+    })
+
+    console.log(updation)
 
     res.send({
       success:true,
