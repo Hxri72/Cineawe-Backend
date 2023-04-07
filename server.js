@@ -6,14 +6,16 @@ require('dotenv').config()
 app.use(express.json())
 
 app.use(cors({
-    origin : "*",
-    methods : ["GET","POST","PUT","DELETE"]
+    origin : "http://localhost:3000",
+    methods : ["GET","POST","PUT","DELETE"],
+    credentials : true,
+    allowedHeaders : ['X-Requested-With,content-type']
 }));
 
 // app.use(function (req, res, next) {
 
 //     // Website you wish to allow to connect
-//     res.setHeader('Access-Control-Allow-Origin', 'https://cineawe.online');
+//     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
   
 //     // Request methods you wish to allow
 //     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
