@@ -2,7 +2,7 @@ const ownerModel = require("../models/ownerModel");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const theaterModel = require("../models/theaterModel");
-
+const bookingModel = require("../models/bookingModel")
 module.exports = {
 
     getCurrentOwner:async(req,res,next)=>{
@@ -302,8 +302,6 @@ module.exports = {
         const Dates = []
         
         var currentDate = formattedStartDate
-        console.log(currentDate)
-        console.log(formattedEndDate)
         
         while (currentDate <= formattedEndDate) {
             const Array = ({
@@ -354,6 +352,25 @@ module.exports = {
             res.send({
                 success:false,
                 message:error.response
+            })
+        }
+    },
+
+    postOwnerBookings:async(req,res,next)=>{
+        try {
+            const email = req.body.owner.email
+            const bookings = await bookingModel.find({ownerMail:email})
+            if(bookings){
+                res.send({
+                    success:true,
+                    message:'bookingData fetched succesfully',
+                    data:bookings
+                })
+            }
+        } catch (error) {
+            res.send({
+                success:false,
+                message:'something went wrong'
             })
         }
     }
