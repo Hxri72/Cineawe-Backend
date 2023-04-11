@@ -26,5 +26,9 @@ router.post('/delete-theater',ownerControllers.postDeleteTheater)
 
 router.post('/owner-bookings',ownerControllers.postOwnerBookings)
 
+router.post('/owner-dashboard-data',ownerControllers.postOwnerDashboard)
+
+router.post('/owner-bookings-data',ownerControllers.postOwnerBookingsData)
+
 
 module.exports = router

@@ -530,9 +530,9 @@ module.exports = {
 
             currentDate = new Date(currentDateIso)
             while(currentDate >= new Date(endDateStrIso)){
-                const dateString = currentDate.toISOString().substring(0, 10);
-                const changedDate = changingFormat(dateString)
-                const bookings = await bookingModel.find({showDate:changedDate})
+                    const dateString = currentDate.toISOString().substring(0, 10);
+                    const changedDate = changingFormat(dateString)
+                    const bookings = await bookingModel.find({showDate:changedDate})
                 if(bookings){
                     let totalPrice = 0
                     for(let i=0;i<bookings.length;i++){
@@ -598,11 +598,15 @@ module.exports = {
                 return formattedDate;
             }
 
+            const data = []
+
             const currentDateIso = changeIntoIso(currentDate)
             const endDateStrIso = changeIntoIso(endDateStr)
 
             currentEndDate = new Date(endDateStrIso)
+            
             while(currentEndDate <= new Date(currentDateIso)){
+                let totalShows = 0 
                 const dateString = currentEndDate.toISOString().substring(0, 10);
                 const changedDate = changingFormat(dateString)
 
@@ -617,29 +621,27 @@ module.exports = {
                         },
                       },
                     },
-                    {
-                      $project: {
-                        shows: {
-                          $filter: {
-                            input: "$shows",
-                            as: "show",
-                            cond: {
-                              $and: [
-                                { $lte: ["$$show.startdate", changedDate] },
-                                { $gte: ["$$show.enddate", changedDate] },
-                              ],
-                            },
-                          },
-                        },
-                      },
-                    },
                   ]);
-
-                  console.log(showData)
-
-                currentEndDate.setDate(currentEndDate.getDate() + 1);
+                  
+                if(showData){
+                    showData.map((shows)=>{
+                        totalShows = shows.shows.length + totalShows
+                    })
+                    data.push({ date: changedDate, totalShows: totalShows });
+                    currentEndDate.setDate(currentEndDate.getDate() + 1);
+                }else{
+                    data.push({date:changedDate,totalShows:totalShows})
+                    currentEndDate.setDate(currentEndDate.getDate() + 1);
+                }
 
             }
+
+            res.send({
+                success:true,
+                message:'totalShows Fetched',
+                data:data
+            })
+            
 
         } catch (error) {
             res.send({
