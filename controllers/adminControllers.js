@@ -464,7 +464,6 @@ module.exports = {
             const formattedDate = `${day.toString().padStart(2, "0")}/${month.toString().padStart(2, "0")}`;
             lastweekDates.push(formattedDate)  
             }
-            
 
             const data = {
                 totalSales:totalSales,
@@ -479,6 +478,168 @@ module.exports = {
                 message:'data fetched successfully',
                 data:data
             })  
+
+        } catch (error) {
+            res.send({
+                success:false,
+                message:'something went wrong'
+            })
+        }
+    },
+
+    getAllBookingsByDay : async (req,res,next) => {
+        try {
+           const today = new Date().toLocaleDateString()
+           const endDate = new Date();
+           endDate.setDate(endDate.getDate() - 3);
+           const endDateString = endDate.toLocaleDateString();
+           
+            function addingZero(date){
+                let dateParts = date.split("/"); // split the date part into month, day, and year
+                let month = dateParts[0].padStart(2, "0"); // add leading zero to month
+                let day = dateParts[1].padStart(2, "0"); // add leading zero to day
+                let year = dateParts[2];
+                let formattedDate = `${day}/${month}/${year}`; // combine the formatted date and time parts
+                return formattedDate;
+            }
+
+            function changingFormat(date){
+                let dateParts = date.split("-"); // split the date part into month, day, and year
+                let month = dateParts[1] // add leading zero to month
+                let day = dateParts[2] // add leading zero to day
+                let year = dateParts[0];
+                let formattedDate = `${day}/${month}/${year}`; // combine the formatted date and time parts
+                return formattedDate;
+            }
+
+            const todayStr = addingZero(today);
+            let endDateStr = addingZero(endDateString)
+
+            const totalSales = [];
+
+            let currentDate = todayStr
+
+            function changeIntoIso(date){
+                const [day, month, year] = date.split('/');
+                const startDateIso = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                return startDateIso
+            }
+
+            const currentDateIso = changeIntoIso(currentDate)
+            const endDateStrIso = changeIntoIso(endDateStr)
+
+            currentDate = new Date(currentDateIso)
+            while(currentDate >= new Date(endDateStrIso)){
+                const dateString = currentDate.toISOString().substring(0, 10);
+                const changedDate = changingFormat(dateString)
+                const bookings = await bookingModel.find({showDate:changedDate})
+                if(bookings){
+                    let totalPrice = 0
+                    for(let i=0;i<bookings.length;i++){
+                        totalPrice = bookings[i].totalPrice + totalPrice
+                    }
+                    
+                    totalSales.push({ date: changedDate, totalPrice: totalPrice });
+                    currentDate.setDate(currentDate.getDate() - 1);
+                }else{
+                    const totalPrice = 0;
+                    totalSales.push({ date: changedDate, totalPrice: totalPrice });
+                    currentDate.setDate(currentDate.getDate() - 1);
+                }
+            }
+            
+            res.send({
+                success:true,
+                message:'totalSales fetched',
+                data:totalSales
+            })
+
+        } catch (error) {
+            res.send({
+                success:false,
+                message:'something went wrong'
+            })
+        }
+    },
+
+    getAllShowsByDay : async(req,res,next) => {
+        try {
+            const today = new Date().toLocaleDateString()
+            const endDate = new Date();
+            endDate.setDate(endDate.getDate() - 3);
+            const endDateString = endDate.toLocaleDateString();
+
+            function addingZero(date){
+                let dateParts = date.split("/"); // split the date part into month, day, and year
+                let month = dateParts[0].padStart(2, "0"); // add leading zero to month
+                let day = dateParts[1].padStart(2, "0"); // add leading zero to day
+                let year = dateParts[2];
+                let formattedDate = `${day}/${month}/${year}`; // combine the formatted date and time parts
+                return formattedDate;
+            }
+
+            const todayStr = addingZero(today);
+            let endDateStr = addingZero(endDateString)
+
+            let currentDate = todayStr
+
+            function changeIntoIso(date){
+                const [day, month, year] = date.split('/');
+                const startDateIso = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                return startDateIso
+            }
+
+            function changingFormat(date){
+                let dateParts = date.split("-"); // split the date part into month, day, and year
+                let month = dateParts[1] // add leading zero to month
+                let day = dateParts[2] // add leading zero to day
+                let year = dateParts[0];
+                let formattedDate = `${day}/${month}/${year}`; // combine the formatted date and time parts
+                return formattedDate;
+            }
+
+            const currentDateIso = changeIntoIso(currentDate)
+            const endDateStrIso = changeIntoIso(endDateStr)
+
+            currentEndDate = new Date(endDateStrIso)
+            while(currentEndDate <= new Date(currentDateIso)){
+                const dateString = currentEndDate.toISOString().substring(0, 10);
+                const changedDate = changingFormat(dateString)
+
+                let showData = await theaterModel.aggregate([
+                    {
+                      $match: {
+                        shows: {
+                          $elemMatch: {
+                            startdate: { $lte: changedDate },
+                            enddate: { $gte: changedDate },
+                          },
+                        },
+                      },
+                    },
+                    {
+                      $project: {
+                        shows: {
+                          $filter: {
+                            input: "$shows",
+                            as: "show",
+                            cond: {
+                              $and: [
+                                { $lte: ["$$show.startdate", changedDate] },
+                                { $gte: ["$$show.enddate", changedDate] },
+                              ],
+                            },
+                          },
+                        },
+                      },
+                    },
+                  ]);
+
+                  console.log(showData)
+
+                currentEndDate.setDate(currentEndDate.getDate() + 1);
+
+            }
 
         } catch (error) {
             res.send({

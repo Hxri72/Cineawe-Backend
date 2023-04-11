@@ -51,7 +51,6 @@ module.exports = {
     getShowDetails:async(req,res,next)=>{
         try {
             const showDetails = await theaterModel.findOne({_id:req.body.theaterId})
-            console.log(showDetails)
             if(showDetails){
                 return res.send({
                     success:true,
@@ -312,7 +311,7 @@ module.exports = {
             
             const dateParts = currentDate.split('/');
             const day = parseInt(dateParts[0], 10) + 1;
-            const month = dateParts[1];
+            const month = dateParts[1]; 
             const year = dateParts[2];
             currentDate = `${day.toString().padStart(2, '0')}/${month}/${year}`;
         }

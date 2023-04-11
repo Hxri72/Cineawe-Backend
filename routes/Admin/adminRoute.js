@@ -28,4 +28,8 @@ router.post('/delete-movie',adminControllers.postDeleteMovie)
 
 router.get('/get-dashboardData',adminControllers.getDashboardData)
 
+router.get('/get-bookings-by-day',adminControllers.getAllBookingsByDay)
+
+router.get('/get-shows-by-day',adminControllers.getAllShowsByDay)
+
 module.exports = router
