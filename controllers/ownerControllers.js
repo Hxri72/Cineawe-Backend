@@ -275,7 +275,6 @@ module.exports = {
          // replace with your date string
         const partsStartDate = startDate.split("-");
         const formattedStartDate = `${partsStartDate[2]}/${partsStartDate[1]}/${partsStartDate[0]}`;
-        
 
         const partsEndDate = endDate.split("-");
         const formattedEndDate = `${partsEndDate[2]}/${partsEndDate[1]}/${partsEndDate[0]}`;
@@ -284,7 +283,6 @@ module.exports = {
         const period = hours < 12 ? 'AM' : 'PM';
         const hours12 = hours % 12 || 12;
         const time12 = `${hours12}:${minutes} ${period}`;
-
         
         const theaterExist = await theaterModel.findOne({theaterName:showData.theatername})
         
@@ -468,7 +466,6 @@ module.exports = {
                     for(let i=0;i<bookings.length;i++){
                         totalPrice = bookings[i].totalPrice + totalPrice
                     }
-                    
                     totalSales.push({ date: changedDate, totalPrice: totalPrice });
                     currentEndDate.setDate(currentEndDate.getDate() + 1);
                 }else{
@@ -477,8 +474,6 @@ module.exports = {
                     currentEndDate.setDate(currentEndDate.getDate() + 1);
                 }
             }
-
-            console.log(totalSales)
 
             res.send({
                 success:true,
